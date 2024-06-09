@@ -1,10 +1,12 @@
+# Made with ❤ by @adearman
+# Join tele channel for update t.me/ghalibie
 import requests
 import time
 from colorama import Fore, Style, init
 import re
 import json
 import urllib.parse
-
+import argparse
 def extract_names(encoded_text):
     # Decode the URL-encoded string
     decoded_text = urllib.parse.unquote(encoded_text)
@@ -107,6 +109,12 @@ def attempt_claim(authorization):
     headers = create_headers(authorization)
     return make_post_request(url, headers)
 
+def upgrade_booster(authorization):
+    url = 'https://wallet-api.spell.club/upgrade?batch_mode=true'
+    headers = create_headers(authorization)
+    payload = {"upgrade_type": "booster"}
+    data = json.dumps(payload)
+    return make_post_request(url, headers, data=data)
 # Function to get tasks
 
 def join_clan(authorization):
@@ -157,6 +165,22 @@ def get_quest(authorization):
     if response:
         return response
     return None
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Blum BOT')
+    parser.add_argument('--upgrade', type=str, choices=['y', 'n'], help='Upgrade Booster (y/n)')
+    args = parser.parse_args()
+
+    if args.upgrade is None:
+        # Jika parameter --upgrade tidak diberikan, minta input dari pengguna
+        upgrade_input = input("Apakah Anda ingin upgrade booster? (y/n, default n): ").strip().lower()
+        # Jika pengguna hanya menekan enter, gunakan 'n' sebagai default
+        args.upgrade = upgrade_input if upgrade_input in ['y', 'n'] else 'n'
+
+    return args
+
+args = parse_arguments()
+cek_upgrade_enable = args.upgrade
 # Main logic
 def main():
     print_welcome_message()
@@ -310,6 +334,37 @@ def main():
                                                         print(Fore.BLUE + Style.BRIGHT + f"\r[ Mana Production ] : Pending, Claiming again..",  flush=True)
                                                     else:
                                                         print(Fore.RED + Style.BRIGHT + f"\r[ Mana Production ] : Claim status {tasks_response}", flush=True)
+                if cek_upgrade_enable == 'y':
+                    print(Fore.YELLOW + Style.BRIGHT + f"\r[ Upgrade Booster ] : Checking...", end="", flush=True)
+                    upgrade_response = upgrade_booster(auth)
+                    if upgrade_response:
+                        if upgrade_response.get('message') == 'not_enough_balance':
+                            print(Fore.RED + Style.BRIGHT + f"\r[ Upgrade Booster ] : Not enough balance", flush=True)
+                        else:
+                            print(Fore.GREEN + Style.BRIGHT + f"\r[ Upgrade Booster ] : Success to upgrade {upgrade_response}", flush=True)
+                        
+                    else:
+                        print(Fore.RED + Style.BRIGHT + f"\r[ Upgrade Booster ] : Failed to upgrade {upgrade_response}", flush=True)
+                    
+                    tasks_response = get_tasks(auth)
+                    if tasks_response:
+                        for task in tasks_response:
+                            if task.get('type') == 'upgrade' and task.get('status') == 'pending':
+                                print(Fore.BLUE + Style.BRIGHT + f"\r[ Upgrade Booster ] : Pending, check again..",  flush=True)
+                                time.sleep(10)
+                                tasks_response = get_tasks(auth)
+                                if tasks_response:
+                                    for task in tasks_response:
+                                        if task.get('type') == 'upgrade' and task.get('status') == 'success':
+                                            print(Fore.GREEN + Style.BRIGHT + f"\r[ Upgrade Booster ] : Upgrade successful!", flush=True)
+                                            break  # Keluar dari loop klaim jika klaim berhasil
+                                        elif tasks_response == None:
+                                            print(Fore.RED + Style.BRIGHT + f"\r[ Upgrade Booster ] : Upgrade successful!", flush=True)
+                                        else:
+                                            if task.get('type') == 'upgrade' and task.get('status') == 'pending':
+                                                print(Fore.BLUE + Style.BRIGHT + f"\r[ Upgrade Booster ] : Pending, check again..",  flush=True)
+                                            else:
+                                                print(Fore.RED + Style.BRIGHT + f"\r[ Upgrade Booster ] : Upgrade status {tasks_response}", flush=True)
             time.sleep(2)  # Delay untuk mencegah rate limiting
         print(Fore.BLUE + Style.BRIGHT + f"\n==========SEMUA AKUN TELAH DI PROSES==========\n",  flush=True)    
         animate_energy_recharge(300) 
