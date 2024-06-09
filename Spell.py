@@ -72,6 +72,27 @@ def make_get_request(url, headers):
         print(Fore.RED + f"JSON Error: {errj}")
     return None
 
+def make_get_request_login(url, headers, first_name, last_name):
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        
+        return response.json()
+    except requests.exceptions.HTTPError as errh:
+        if errh.response.status_code == 400:
+           return response.json()   
+        else:
+            print(Fore.RED + f"[ {first_name} {last_name} ] HTTP Error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        print(Fore.RED + f"[ {first_name} {last_name} ] Error Connecting: {errc}")
+    except requests.exceptions.Timeout as errt:
+        print(Fore.RED + f"Timeout Error: {errt}")
+    except requests.exceptions.RequestException as err:
+        print(Fore.RED + f"Oops: Something Else {err}")
+    except ValueError as errj:
+        print(Fore.RED + f"JSON Error: {errj}")
+    return None
+
 # Function to handle POST requests
 def make_post_request(url, headers, data=None):
     try:
@@ -94,10 +115,11 @@ def make_post_request(url, headers, data=None):
     return None
 
 # Function to get balance
-def get_balance(authorization):
+def get_balance(authorization, first_name, last_name):
     url = 'https://wallet-api.spell.club/user'
     headers = create_headers(authorization)
-    response = make_get_request(url, headers)
+    response = make_get_request_login(url, headers, first_name, last_name)
+    # print(response)
     if response:
         return response
     return None
@@ -190,7 +212,7 @@ def main():
     while True:  # Loop selamanya
         for idx, auth in enumerate(authorizations, start=1):
             first_name, last_name = extract_names(auth)
-            balance = get_balance(auth)
+            balance = get_balance(auth, first_name, last_name)
             # print(balance)
             if balance is not None:
                 address = balance.get('address')
