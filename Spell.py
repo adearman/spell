@@ -335,27 +335,16 @@ def main():
                             break  # Keluar dari loop klaim jika tidak ada yang bisa diklaim
                         else:
                             print(Fore.GREEN + Style.BRIGHT + f"\r[ Mana Production ] : Ready to claim: {claim_response}", flush=True)
-                            time.sleep(5)
+                            time.sleep(2)
                             print(Fore.BLUE + Style.BRIGHT + f"\r[ Mana Production ] : Claiming mana..", end="", flush=True)
                             tasks_response = get_tasks(auth)
-                            if tasks_response:
-                                for task in tasks_response:
-                                    if task.get('type') == 'claim' and task.get('status') == 'pending':
-                                        print(Fore.BLUE + Style.BRIGHT + f"\r[ Mana Production ] : Pending, Claiming again..",  flush=True)
-                                        time.sleep(10)
-                                        tasks_response = get_tasks(auth)
-                                        if tasks_response:
-                                            for task in tasks_response:
-                                                if task.get('type') == 'claim' and task.get('status') == 'success':
-                                                    print(Fore.GREEN + Style.BRIGHT + f"\r[ Mana Production ] : Claim successful!", flush=True)
-                                                    break  # Keluar dari loop klaim jika klaim berhasil
-                                                elif tasks_response == None:
-                                                    print(Fore.RED + Style.BRIGHT + f"\r[ Mana Production ] : Claim successful!", flush=True)
-                                                else:
-                                                    if task.get('type') == 'claim' and task.get('status') == 'pending':
-                                                        print(Fore.BLUE + Style.BRIGHT + f"\r[ Mana Production ] : Pending, Claiming again..",  flush=True)
-                                                    else:
-                                                        print(Fore.RED + Style.BRIGHT + f"\r[ Mana Production ] : Claim status {tasks_response}", flush=True)
+                            break
+                            # print(tasks_response)
+                            # if tasks_response:
+                            #     for task in tasks_response:
+                            #         if task.get('type') == 'claim' and task.get('status') == 'pending':
+                            #             print(Fore.BLUE + Style.BRIGHT + f"\r[ Mana Production ] : Pending, Claiming again..",  flush=True)
+                            #             break
                 if cek_upgrade_enable == 'y':
                     print(Fore.YELLOW + Style.BRIGHT + f"\r[ Upgrade Booster ] : Checking...", end="", flush=True)
                     upgrade_response = upgrade_booster(auth)
@@ -397,11 +386,11 @@ def print_welcome_message():
 █▀▀ █░█ ▄▀█ █░░ █ █▄▄ █ █▀▀
 █▄█ █▀█ █▀█ █▄▄ █ █▄█ █ ██▄
           """)
-    print(Fore.GREEN + Style.BRIGHT + "Spell BOT")
-    print(Fore.CYAN + Style.BRIGHT + "Update Link: https://github.com/adearman/spell")
+    print(Fore.GREEN + Style.BRIGHT + "Onchain BOT")
+    print(Fore.CYAN + Style.BRIGHT + "Update Link: https://github.com/adearman/onchain")
     print(Fore.YELLOW + Style.BRIGHT + "Free Konsultasi Join Telegram Channel: https://t.me/ghalibie")
     print(Fore.BLUE + Style.BRIGHT + "Buy me a coffee :) 0823 2367 3487 GOPAY / DANA")
-    print(Fore.RED + Style.BRIGHT + "NOT FOR SALE ! Ngotak dikit bang. Ngoding susah2 kau tinggal rename :)")
+    print(Fore.RED + Style.BRIGHT + "NOT FOR SALE ! Ngotak dikit bang. Ngoding susah2 kau tinggal rename :)\n\n")
 
 def animate_energy_recharge(duration):
     frames = ["|", "/", "-", "\\"]
